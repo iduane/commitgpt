@@ -11,25 +11,33 @@ npx commitgpt
 ```
 
 ### Get OpenAI api key
+
 https://platform.openai.com/account/api-keys
 
 ### Configuration (Optional)
-you can create `.commitgpt.json` and/or `.commitgpt-template` config files in your project root. 
+
+you can create `.commitgpt.json` and/or `.commitgpt-template` config files in your project root.
 
 #### `.commitgpt.json` file
-default: 
+
+default:
+
 ```json
 {
-  "model": "text-davinci-003",
+  "apiKey": "sk-xxxxxxxxxxxxxxxxx",
+  "basePath": "https://api.openai.com/v1",
+  "model": "gpt-3.5-turbo-instruct",
   "temperature": 0.5,
-  "maxTokens": 2048,
+  "maxTokens": 2048
 }
 ```
+
 this file can be used to change the openai model and other parameters.
 
-
 ### `.commitgpt-template` file
+
 default:
+
 ```
 suggest 10 commit messages based on the following diff:
 {{diff}}
@@ -58,6 +66,6 @@ Some code and approaches were inspired by the awesome projects below:
 - https://github.com/transitive-bullshit/chatgpt-api
 - https://github.com/wong2/chat-gpt-google-extension
 
-----
+---
 
 Do you need API docs? Check out [Redocly](https://redocly.com).
