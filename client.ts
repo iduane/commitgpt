@@ -21,9 +21,9 @@ export class ChatGPTClient {
         max_tokens: maxTokens,
         temperature,
       });
-      console.debug('--------Received Response-------');
-      console.debug(result.data);
-      console.debug('--------Received Response End-------');
+      debug('--------Received Response-------');
+      debug(result.data);
+      debug('--------Received Response End-------');
       return result.data.choices[0].text;
     } catch (e) {
       console.error(e?.response ?? e);
@@ -33,3 +33,9 @@ export class ChatGPTClient {
     // @ts-ignore
   }
 }
+
+const debug = (...args: unknown[]) => {
+  if (process.env.DEBUG) {
+    console.debug(...args);
+  }
+};
