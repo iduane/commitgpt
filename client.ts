@@ -6,6 +6,7 @@ import { getConfig } from "./config_storage.js";
 
 const configuration = new Configuration({
   apiKey: await getApiKey(),
+  basePath: getConfig<string>("basePath") || "https://api.openai.com/v1",
 });
 const openai = new OpenAIApi(configuration);
 
@@ -20,6 +21,9 @@ export class ChatGPTClient {
         max_tokens: maxTokens,
         temperature,
       });
+      console.debug('--------Received Response-------');
+      console.debug(result.data);
+      console.debug('--------Received Response End-------');
       return result.data.choices[0].text;
     } catch (e) {
       console.error(e?.response ?? e);

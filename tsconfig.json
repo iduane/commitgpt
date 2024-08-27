@@ -6,6 +6,6 @@
     "lib": ["es2022"],
     "moduleResolution": "node",
     "esModuleInterop": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
   }
 }

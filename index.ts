@@ -5,7 +5,7 @@ import enquirer from "enquirer";
 import ora from "ora";
 
 import { ChatGPTClient } from "./client.js";
-import { loadPromptTemplate } from "./config_storage.js";
+import { getConfig, loadPromptTemplate } from "./config_storage.js";
 
 const debug = (...args: unknown[]) => {
   if (process.env.DEBUG) {
@@ -17,14 +17,15 @@ const CUSTOM_MESSAGE_OPTION = "[write own message]...";
 const spinner = ora();
 
 let diff = "";
+const diffCMD = getConfig<string>('diffCMD');
 try {
-  diff = execSync("git diff --cached").toString();
+  diff = execSync(diffCMD).toString();
   if (!diff) {
     console.log("No changes to commit.");
     process.exit(0);
   }
 } catch (e) {
-  console.log("Failed to run git diff --cached");
+  console.log(`Failed to run ${diffCMD}`);
   process.exit(1);
 }
 
@@ -64,11 +65,12 @@ async function run(diff: string) {
         choices,
       });
 
+      const commitCMD = getConfig<string>('commitCMD');
       if (answer.message === CUSTOM_MESSAGE_OPTION) {
-        execSync("git commit", { stdio: "inherit" });
+        execSync(commitCMD, { stdio: "inherit" });
         return;
       } else {
-        execSync(`git commit -m '${escapeCommitMessage(answer.message)}'`, {
+        execSync(`${commitCMD} -m '${escapeCommitMessage(answer.message)}'`, {
           stdio: "inherit",
         });
         return;

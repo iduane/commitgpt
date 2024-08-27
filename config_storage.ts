@@ -14,12 +14,17 @@ interface Config {
   model: string;
   temperature: number;
   maxTokens: number;
+  diffCMD: string;
+  commitCMD: string;
+  basePath?: string;
 }
 
 const defaultConfig = {
-  model: "text-davinci-003",
+  model: "gpt-3.5-turbo-instruct",
   temperature: 0.5,
   maxTokens: 2048,
+  diffCMD: "git diff --cached", // "svn diff --git -x -w",
+  commitCMD: "git commit", // "svn commit",
 } satisfies Config;
 
 const writeJsonFile = (path: string, data: unknown) => {
