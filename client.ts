@@ -13,8 +13,12 @@ const openai = new OpenAIApi(configuration);
 
 export class ChatGPTClient {
   async getAnswer(question: string): Promise<string> {
-    const { model, maxTokens, temperature } = await getPromptOptions();
+    if (question.length > 20000) {
+      question = question.slice(0, 20000);
+    }
 
+    const { model, maxTokens, temperature } = await getPromptOptions();
+    
     try {
       const result = await openai.createChatCompletion({
         model,
