@@ -10,11 +10,16 @@ const configuration = new Configuration({
 });
 const openai = new OpenAIApi(configuration);
 
-
 export class ChatGPTClient {
+  private maxQuestionLength: number;
+
+  constructor() {
+    this.maxQuestionLength = getConfig<number>("maxQuestionLength") || 80000;
+  }
+
   async getAnswer(question: string): Promise<string> {
-    if (question.length > 20000) {
-      question = question.slice(0, 20000);
+    if (question.length > this.maxQuestionLength) {
+      question = question.slice(0, this.maxQuestionLength);
     }
 
     const { model, maxTokens, temperature } = await getPromptOptions();

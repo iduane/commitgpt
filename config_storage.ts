@@ -17,6 +17,7 @@ interface Config {
   diffCMD: string;
   commitCMD: string;
   basePath?: string;
+  maxQuestionLength?: number;
 }
 
 const defaultConfig = {
@@ -25,6 +26,7 @@ const defaultConfig = {
   maxTokens: 2048,
   diffCMD: "", // "git diff --cached" "svn diff --git -x -w",
   commitCMD: "", // "git commit" "svn commit",
+  maxQuestionLength: 80000,
 } satisfies Config;
 
 const writeJsonFile = (path: string, data: unknown) => {
