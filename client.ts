@@ -10,27 +10,29 @@ const configuration = new Configuration({
 });
 const openai = new OpenAIApi(configuration);
 
+
 export class ChatGPTClient {
   async getAnswer(question: string): Promise<string> {
     const { model, maxTokens, temperature } = await getPromptOptions();
 
     try {
-      const result = await openai.createCompletion({
+      const result = await openai.createChatCompletion({
         model,
-        prompt: question,
+        messages: [
+          { role: "system", content: "You are a helpful assistant." },
+          { role: "user", content: question }
+        ],
         max_tokens: maxTokens,
         temperature,
       });
       debug('--------Received Response-------');
       debug(result.data);
       debug('--------Received Response End-------');
-      return result.data.choices[0].text;
+      return result.data.choices[0].message.content.trim();
     } catch (e) {
       console.error(e?.response ?? e);
       throw e;
     }
-
-    // @ts-ignore
   }
 }
 

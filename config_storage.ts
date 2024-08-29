@@ -23,8 +23,8 @@ const defaultConfig = {
   model: "gpt-3.5-turbo-instruct",
   temperature: 0.5,
   maxTokens: 2048,
-  diffCMD: "git diff --cached", // "svn diff --git -x -w",
-  commitCMD: "git commit", // "svn commit",
+  diffCMD: "", // "git diff --cached" "svn diff --git -x -w",
+  commitCMD: "", // "git commit" "svn commit",
 } satisfies Config;
 
 const writeJsonFile = (path: string, data: unknown) => {

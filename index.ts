@@ -15,9 +15,19 @@ const debug = (...args: unknown[]) => {
 
 const CUSTOM_MESSAGE_OPTION = "[write own message]...";
 const spinner = ora();
-
 let diff = "";
-const diffCMD = getConfig<string>('diffCMD');
+
+let diffCMD = getConfig<string>('diffCMD');
+if (!diffCMD) {
+  // try run git status or svn status to detect the version control system automatically
+  const vcs = detectVCS();
+  if (!vcs) {
+    console.log("No supported version control system detected.");
+    process.exit(1);
+  }
+
+  diffCMD = vcs === "git" ? "git diff --cached" : "svn diff --git -x -w";
+}
 try {
   diff = execSync(diffCMD).toString();
   if (!diff) {
@@ -41,22 +51,26 @@ run(diff)
 async function run(diff: string) {
   // TODO: we should use a good tokenizer here
   const diffTokens = diff.split(" ").length;
-  if (diffTokens > 2000) {
-    console.log(`Diff is way too bug. Truncating to 700 tokens. It may help`);
-    diff = diff.split(" ").slice(0, 700).join(" ");
+  if (diffTokens > 30000) {
+    console.log(`Diff is way too big. Truncating to 30000 tokens. It may help`);
+    diff = diff.split(" ").slice(0, 30000).join(" ");
   }
 
   const api = new ChatGPTClient();
 
-  const prompt = loadPromptTemplate().replace(
-    "{{diff}}",
-    ["```", diff, "```"].join("\n")
-  );
+  const promptTemplate = loadPromptTemplate();
+  const userMessage = promptTemplate.replace("{{diff}}", ["```", diff, "```"].join("\n"));
+
+  const messages = [
+    { role: "system", content: "You are a helpful assistant." },
+    { role: "user", content: userMessage }
+  ];
 
   while (true) {
-    debug("prompt: ", prompt);
-    const choices = await getMessages(api, prompt);
+    debug("prompt: ", userMessage);
+    const response = await api.getAnswer(userMessage);
 
+    const choices = [response];
     try {
       const answer = await enquirer.prompt<{ message: string }>({
         type: "select",
@@ -65,7 +79,19 @@ async function run(diff: string) {
         choices,
       });
 
-      const commitCMD = getConfig<string>('commitCMD');
+      let commitCMD = getConfig<string>('commitCMD');
+      if (!commitCMD) {
+        // try run git status or svn status to detect the version control system automatically
+        const vcs = detectVCS();
+        if (!vcs) {
+          console.log("No supported version control system detected.");
+          process.exit(1);
+        }
+
+        commitCMD = vcs === "git" ? "git commit" : "svn commit";
+      }
+
+      
       if (answer.message === CUSTOM_MESSAGE_OPTION) {
         execSync(commitCMD, { stdio: "inherit" });
         return;
@@ -125,4 +151,19 @@ function normalizeMessage(line: string) {
 
 function escapeCommitMessage(message: string) {
   return message.replace(/'/, `''`);
+}
+
+// Function to detect the version control system
+function detectVCS(): string | null {
+  try {
+    execSync("git status", { stdio: 'ignore', });
+    return "git";
+  } catch (e) {
+    try {
+      execSync("svn status", { stdio: 'ignore' });
+      return "svn";
+    } catch (e) {
+      return null;
+    }
+  }
 }
