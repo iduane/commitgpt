@@ -68,9 +68,8 @@ async function run(diff: string) {
 
   while (true) {
     debug("prompt: ", userMessage);
-    const response = await api.getAnswer(userMessage);
 
-    const choices = [response];
+    const choices = await getMessages(api, userMessage);;
     try {
       const answer = await enquirer.prompt<{ message: string }>({
         type: "select",
@@ -109,12 +108,12 @@ async function run(diff: string) {
   }
 }
 
-async function getMessages(api: ChatGPTClient, request: string) {
+async function getMessages(api: ChatGPTClient, userMessage: string) {
   spinner.start("Asking ChatGPT 🤖 for commit messages...");
 
   // send a message and wait for the response
   try {
-    const response = await api.getAnswer(request);
+    const response = await api.getAnswer(userMessage);
     // find json array of strings in the response
     const messages = response
       .split("\n")
@@ -130,7 +129,7 @@ async function getMessages(api: ChatGPTClient, request: string) {
   } catch (e) {
     spinner.stop();
     if (e.message === "Unauthorized") {
-      return getMessages(api, request);
+      return getMessages(api, userMessage);
     } else {
       throw e;
     }
