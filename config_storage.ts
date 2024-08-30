@@ -21,7 +21,7 @@ interface Config {
 }
 
 const defaultConfig = {
-  model: "gpt-3.5-turbo-instruct",
+  model: "gpt-4o-mini",
   temperature: 0.5,
   maxTokens: 2048,
   diffCMD: "", // "git diff --cached" "svn diff --git -x -w",
